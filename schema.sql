@@ -1,0 +1,50 @@
+CREATE DATABASE IF NOT EXISTS pastebin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE pastebin;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(60) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    avatar_path VARCHAR(255) NULL,
+    website_url VARCHAR(255) NULL,
+    telegram_id VARCHAR(120) NULL,
+    discord_id VARCHAR(120) NULL,
+    is_admin TINYINT(1) NOT NULL DEFAULT 0,
+    is_banned TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS pastes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    slug VARCHAR(24) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
+    syntax VARCHAR(32) NOT NULL DEFAULT 'text',
+    content MEDIUMTEXT NOT NULL,
+    expires_at DATETIME NULL,
+    is_public TINYINT(1) NOT NULL DEFAULT 1,
+    private_password_hash VARCHAR(255) NULL,
+    view_count INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    CONSTRAINT fk_pastes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS paste_views (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    paste_id INT UNSIGNED NOT NULL,
+    viewed_at DATETIME NOT NULL,
+    CONSTRAINT fk_paste_views_paste FOREIGN KEY (paste_id) REFERENCES pastes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS advertisements (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    gif_url VARCHAR(500) NOT NULL,
+    target_url VARCHAR(500) NOT NULL,
+    display_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+    page_location VARCHAR(32) NOT NULL DEFAULT 'all',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
